@@ -60,6 +60,14 @@ func parseMatch(key string, value string) (Match, error) {
 		return parseDataLinkVLAN(value)
 	case ndTarget:
 		return NeighborDiscoveryTarget(value), nil
+	case nwECN:
+		return parseIntMatch(key, value, math.MaxInt32)
+	case nwTTL:
+		return parseIntMatch(key, value, math.MaxInt32)
+	case nwTOS:
+		return parseIntMatch(key, value, math.MaxInt32)
+	case inPort:
+		return parseIntMatch(key, value, math.MaxInt32)
 	case ipv6SRC:
 		return IPv6Source(value), nil
 	case ipv6DST:
@@ -104,6 +112,14 @@ func parseIntMatch(key string, value string, max int) (Match, error) {
 	switch key {
 	case icmpType:
 		return ICMPType(uint8(t)), nil
+	case inPort:
+		return InPortMatch(int(t)), nil
+	case nwECN:
+		return NetworkECN(int(t)), nil
+	case nwTTL:
+		return NetworkTTL(int(t)), nil
+	case nwTOS:
+		return NetworkTOS(int(t)), nil
 	case nwProto:
 		return NetworkProtocol(uint8(t)), nil
 	case ctZone:
@@ -206,6 +222,11 @@ func parseCTState(value string) (Match, error) {
 // parseTCPFlags parses a series of TCP flags into a Match.  Open vSwitch's representation
 // of These TCP flags are outlined in the ovs-field(7) man page,
 func parseTCPFlags(value string) (Match, error) {
+	// tcp_flag can also be decimal number
+	if _, err := strconv.Atoi(value); err == nil {
+		return TCPFlags(value), nil
+	}
+
 	if len(value)%4 != 0 {
 		return nil, errors.New("tcp_flags length must be divisible by 4")
 	}

@@ -53,8 +53,11 @@ const (
 	ndSLL    = "nd_sll"
 	ndTLL    = "nd_tll"
 	ndTarget = "nd_target"
+	nwECN    = "nw_ecn"
 	nwDST    = "nw_dst"
 	nwProto  = "nw_proto"
+	nwTOS    = "nw_tos"
+	nwTTL    = "nw_ttl"
 	nwSRC    = "nw_src"
 	tcpFlags = "tcp_flags"
 	tpDST    = "tp_dst"
@@ -248,6 +251,78 @@ func (m *networkMatch) GoString() string {
 	return fmt.Sprintf("ovs.NetworkDestination(%q)", m.ip)
 }
 
+// NetworkECN creates a new networkECN
+func NetworkECN(ecn int) *networkECN {
+	return &networkECN{
+		ecn: ecn,
+	}
+}
+
+var _ Match = &networkECN{}
+
+// a networkECN is a match for network Explicit Congestion Notification
+type networkECN struct {
+	ecn int
+}
+
+// MarshalText implements Match.
+func (e *networkECN) MarshalText() ([]byte, error) {
+	return bprintf("nw_ecn=%d", e.ecn), nil
+}
+
+// GoString implements Match.
+func (e *networkECN) GoString() string {
+	return fmt.Sprintf("ovs.NetworkECN(%d)", e.ecn)
+}
+
+// NetworkTOS returns a new networkTOS type
+func NetworkTOS(tos int) *networkTOS {
+	return &networkTOS{
+		tos: tos,
+	}
+}
+
+var _ Match = &networkTOS{}
+
+// networkTOS is a match for network type of service
+type networkTOS struct {
+	tos int
+}
+
+// MarshalText implements Match.
+func (t *networkTOS) MarshalText() ([]byte, error) {
+	return bprintf("nw_tos=%d", t.tos), nil
+}
+
+// GoString implements Match.
+func (t *networkTOS) GoString() string {
+	return fmt.Sprintf("ovs.NetworkTOS(%d)", t.tos)
+}
+
+// NetworkTTL returns a new networkTTL
+func NetworkTTL(ttl int) *networkTTL {
+	return &networkTTL{
+		ttl: ttl,
+	}
+}
+
+var _ Match = &networkTTL{}
+
+// networkTTL is a match for network time to live
+type networkTTL struct {
+	ttl int
+}
+
+// MarshalText implements Match.
+func (t *networkTTL) MarshalText() ([]byte, error) {
+	return bprintf("nw_ttl=%d", t.ttl), nil
+}
+
+// GoString implements Match.
+func (t *networkTTL) GoString() string {
+	return fmt.Sprintf("ovs.NetworkTTL(%d)", t.ttl)
+}
+
 // ConjunctionID matches flows that have matched all dimension of a conjunction
 // inside of the openflow table.
 func ConjunctionID(id uint32) Match {
@@ -360,6 +435,30 @@ func (m *icmpTypeMatch) MarshalText() ([]byte, error) {
 // GoString implements Match.
 func (m *icmpTypeMatch) GoString() string {
 	return fmt.Sprintf("ovs.ICMPType(%d)", m.typ)
+}
+
+// InPort matches packets ingressing from a specified OVS port
+func InPortMatch(port int) Match {
+	return &inPortMatch{
+		port: port,
+	}
+}
+
+var _ Match = &inPortMatch{}
+
+// inPort matches packets ingressing from a specified OVS port
+type inPortMatch struct {
+	port int
+}
+
+// MarshalText implements Match.
+func (i *inPortMatch) MarshalText() ([]byte, error) {
+	return bprintf("%s=%d", inPort, i.port), nil
+}
+
+// GoString implements Match.
+func (i *inPortMatch) GoString() string {
+	return fmt.Sprintf("ovs.InPort(%q)", i.port)
 }
 
 // NeighborDiscoveryTarget matches packets with an IPv6 neighbor discovery target
