@@ -35,35 +35,36 @@ const (
 
 // Constants of full Match names.
 const (
-	arpSHA   = "arp_sha"
-	arpSPA   = "arp_spa"
-	arpTHA   = "arp_tha"
-	arpTPA   = "arp_tpa"
-	conjID   = "conj_id"
-	ctMark   = "ct_mark"
-	ctState  = "ct_state"
-	ctZone   = "ct_zone"
-	dlSRC    = "dl_src"
-	dlDST    = "dl_dst"
-	dlType   = "dl_type"
-	dlVLAN   = "dl_vlan"
-	icmpType = "icmp_type"
-	ipv6DST  = "ipv6_dst"
-	ipv6SRC  = "ipv6_src"
-	ndSLL    = "nd_sll"
-	ndTLL    = "nd_tll"
-	ndTarget = "nd_target"
-	nwECN    = "nw_ecn"
-	nwDST    = "nw_dst"
-	nwProto  = "nw_proto"
-	nwTOS    = "nw_tos"
-	nwTTL    = "nw_ttl"
-	nwSRC    = "nw_src"
-	tcpFlags = "tcp_flags"
-	tpDST    = "tp_dst"
-	tpSRC    = "tp_src"
-	tunID    = "tun_id"
-	vlanTCI  = "vlan_tci"
+	arpSHA    = "arp_sha"
+	arpSPA    = "arp_spa"
+	arpTHA    = "arp_tha"
+	arpTPA    = "arp_tpa"
+	conjID    = "conj_id"
+	ctMark    = "ct_mark"
+	ctState   = "ct_state"
+	ctZone    = "ct_zone"
+	dlSRC     = "dl_src"
+	dlDST     = "dl_dst"
+	dlType    = "dl_type"
+	dlVLAN    = "dl_vlan"
+	dlVLANPCP = "dl_vlan_pcp"
+	icmpType  = "icmp_type"
+	ipv6DST   = "ipv6_dst"
+	ipv6SRC   = "ipv6_src"
+	ndSLL     = "nd_sll"
+	ndTLL     = "nd_tll"
+	ndTarget  = "nd_target"
+	nwECN     = "nw_ecn"
+	nwDST     = "nw_dst"
+	nwProto   = "nw_proto"
+	nwTOS     = "nw_tos"
+	nwTTL     = "nw_ttl"
+	nwSRC     = "nw_src"
+	tcpFlags  = "tcp_flags"
+	tpDST     = "tp_dst"
+	tpSRC     = "tp_src"
+	tunID     = "tun_id"
+	vlanTCI   = "vlan_tci"
 )
 
 // A Match is a type which can be marshaled into an OpenFlow packet matching
@@ -209,6 +210,34 @@ func (m *dataLinkVLANMatch) GoString() string {
 	}
 
 	return fmt.Sprintf("ovs.DataLinkVLAN(%d)", m.vid)
+}
+
+// DataLinkVLANPCP matches packets with the specified VLAN PCP matching pcp.
+func DataLinkVLANPCP(pcp int) Match {
+	return &dataLinkVLANPCPMatch{
+		pcp: pcp,
+	}
+}
+
+var _ Match = &dataLinkVLANPCPMatch{}
+
+// A dataLinkVLANPCPMatch is a Match returned by DataLinkVLANPCP.
+type dataLinkVLANPCPMatch struct {
+	pcp int
+}
+
+// MarshalText implements Match.
+func (m *dataLinkVLANPCPMatch) MarshalText() ([]byte, error) {
+	if !validVLANPCP(m.pcp) {
+		return nil, errInvalidVLANPCP
+	}
+
+	return bprintf("%s=%d", dlVLANPCP, m.pcp), nil
+}
+
+// GoString implements Match.
+func (m *dataLinkVLANPCPMatch) GoString() string {
+	return fmt.Sprintf("ovs.DataLinkVLANPCP(%d)", m.pcp)
 }
 
 // NetworkSource matches packets with a source IPv4 address or IPv4 CIDR

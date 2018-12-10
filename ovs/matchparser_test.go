@@ -104,6 +104,22 @@ func Test_parseMatch(t *testing.T) {
 			m: DataLinkVLAN(VLANNone),
 		},
 		{
+			s:       "dl_vlan_pcp=foo",
+			invalid: true,
+		},
+		{
+			s:       "dl_vlan_pcp=0x0f",
+			invalid: true,
+		},
+		{
+			s: "dl_vlan_pcp=0",
+			m: DataLinkVLANPCP(0),
+		},
+		{
+			s: "dl_vlan_pcp=7",
+			m: DataLinkVLANPCP(7),
+		},
+		{
 			s:       "dl_type=foo",
 			invalid: true,
 		},

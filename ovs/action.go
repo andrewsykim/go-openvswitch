@@ -30,6 +30,10 @@ var (
 	// for a valid VLAN VID.
 	errInvalidVLANVID = errors.New("VLAN VID must be between 0 and 4095")
 
+	// errInvalidVLANVIDPCP is returned when an input VLAN PCP is out of range
+	// for a valid VLAN PCP.
+	errInvalidVLANPCP = errors.New("VLAN PCP must be between 0 and 7")
+
 	// errOutputNegativePort is returned when Output is called with a
 	// negative integer port.
 	errOutputNegativePort = errors.New("output port number must not be negative")
@@ -561,4 +565,10 @@ func (a *setTunnelAction) MarshalText() ([]byte, error) {
 // for a VLAN VID.
 func validVLANVID(vid int) bool {
 	return vid >= 0x000 && vid <= 0xfff
+}
+
+// validVLANVID indicates if a VLAN VID falls within the valid range
+// for a VLAN VID.
+func validVLANPCP(pcp int) bool {
+	return pcp >= 0 && pcp <= 7
 }

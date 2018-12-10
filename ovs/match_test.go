@@ -182,6 +182,50 @@ func TestMatchDataLinkVLAN(t *testing.T) {
 	}
 }
 
+func TestMatchDataLinkVLANPCP(t *testing.T) {
+	var tests = []struct {
+		desc     string
+		vlan_pcp int
+		out      string
+		invalid  bool
+	}{
+		{
+			desc:     "too small VLAN PCP",
+			vlan_pcp: -1,
+			invalid:  true,
+		},
+		{
+			desc:     "too large VLAN PCP",
+			vlan_pcp: 8,
+			invalid:  true,
+		},
+		{
+			desc:     "minimum VLAN PCP",
+			vlan_pcp: 0,
+			out:      "dl_vlan_pcp=0",
+		},
+		{
+			desc:     "maximum VLAN PCP",
+			vlan_pcp: 7,
+			out:      "dl_vlan_pcp=7",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.desc, func(t *testing.T) {
+			out, err := DataLinkVLANPCP(tt.vlan_pcp).MarshalText()
+			if err != nil && !tt.invalid {
+				t.Fatalf("unexpected error: %v", err)
+			}
+
+			if want, got := tt.out, string(out); want != got {
+				t.Fatalf("unexpected Match output:\n- want: %q\n-  got: %q",
+					want, got)
+			}
+		})
+	}
+}
+
 func TestMatchIPv4AddressOrCIDR(t *testing.T) {
 	var tests = []struct {
 		desc    string

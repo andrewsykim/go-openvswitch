@@ -56,6 +56,8 @@ func parseMatch(key string, value string) (Match, error) {
 		}
 
 		return DataLinkType(etherType), nil
+	case dlVLANPCP:
+		return parseDataLinkVLANPCP(value)
 	case dlVLAN:
 		return parseDataLinkVLAN(value)
 	case ndTarget:
@@ -267,6 +269,25 @@ func parseDataLinkVLAN(value string) (Match, error) {
 	}
 
 	return DataLinkVLAN(int(vlan)), nil
+}
+
+// parseDataLinkVLANPCP parses a DataLinkVLAN Match from value.
+func parseDataLinkVLANPCP(value string) (Match, error) {
+	if !strings.HasPrefix(value, hexPrefix) {
+		pcp, err := strconv.Atoi(value)
+		if err != nil {
+			return nil, err
+		}
+
+		return DataLinkVLANPCP(pcp), nil
+	}
+
+	pcp, err := parseHexUint16(value)
+	if err != nil {
+		return nil, err
+	}
+
+	return DataLinkVLANPCP(int(pcp)), nil
 }
 
 // parseVLANTCI parses a VLANTCI Match from value.
