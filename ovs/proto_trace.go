@@ -126,7 +126,7 @@ func (pt *ProtoTrace) UnmarshalText(b []byte) error {
 		if matches, matched := checkForDataPathActions(line); matched {
 			// first index is always the left most match, following
 			// are the actual matches
-			actions := strings.Split(matches[1], ",")
+			actions := splitDatapathActions(matches[1])
 			for _, action := range actions {
 				d := &dataPathAction{}
 				err := d.UnmarshalText([]byte(action))
@@ -162,6 +162,26 @@ func (pt *ProtoTrace) UnmarshalText(b []byte) error {
 	}
 
 	return nil
+}
+
+func splitDatapathActions(actions string) []string {
+	parens := []byte{}
+	action_bytes := make([]byte, len(actions))
+
+	for i := 0; i < len(actions); i += 1 {
+		action_bytes[i] = actions[i]
+		switch {
+			case actions[i] == ',':
+				if len(parens) == 0 {
+					action_bytes[i] = '\t';
+				}
+			case actions[i] == '(':
+				parens = append(parens, ')')
+			case len(parens) != 0 && actions[i] == parens[len(parens)-1]:
+				parens = parens[:len(parens)-1]
+		}
+	}
+	return strings.Split(string(action_bytes), "\t")
 }
 
 func checkForDataPathActions(s string) ([]string, bool) {
