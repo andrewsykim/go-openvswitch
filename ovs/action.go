@@ -30,6 +30,10 @@ var (
 	// range. It should only use the first 20 bits of the 32 bit field.
 	errInvalidIPv6Label = errors.New("IPv6 label must only use 20 bits")
 
+	// errInvalidARPOP is returned when an input ARP OP is out of
+	// range. It should be in the range 1-4.
+	errInvalidARPOP = errors.New("ARP OP must in the range 1-4")
+
 	// errInvalidVLANVID is returned when an input VLAN VID is out of range
 	// for a valid VLAN VID.
 	errInvalidVLANVID = errors.New("VLAN VID must be between 0 and 4095")
@@ -563,6 +567,12 @@ func (a *setTunnelAction) GoString() string {
 // MarshalText implements Action.
 func (a *setTunnelAction) MarshalText() ([]byte, error) {
 	return bprintf("set_tunnel:%#x", a.tunnelID), nil
+}
+
+// validARPOP indicates if an ARP OP is out of range. It should be in the range
+// 1-4.
+func validARPOP(op uint16) bool {
+	return 1 <= op && op <= 4
 }
 
 // validIPv6Label indicates if an IPv6 label is out of range. It should only

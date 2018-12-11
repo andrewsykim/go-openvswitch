@@ -35,6 +35,7 @@ const (
 
 // Constants of full Match names.
 const (
+	arpOp     = "arp_op"
 	arpSHA    = "arp_sha"
 	arpSPA    = "arp_spa"
 	arpTHA    = "arp_tha"
@@ -868,6 +869,33 @@ func (m *ipv6LabelMatch) MarshalText() ([]byte, error) {
 // GoString implements Match.
 func (m *ipv6LabelMatch) GoString() string {
 	return fmt.Sprintf("ovs.IPv6Label(0x%04x, 0x%04x)", m.label, m.mask)
+}
+
+// An arpOpMatch is a Match returned by ArpOp.
+type arpOpMatch struct {
+	op uint16
+}
+
+// ArpOp matches packets based on their IPv6 label information, using
+// the specified op.
+func ArpOp(op uint16) Match {
+	return &arpOpMatch{
+		op:  op,
+	}
+}
+
+// MarshalText implements Match.
+func (m *arpOpMatch) MarshalText() ([]byte, error) {
+	if !validARPOP(m.op) {
+		return nil, errInvalidARPOP
+	}
+
+	return bprintf("%s=%1d", arpOp, m.op), nil
+}
+
+// GoString implements Match.
+func (m *arpOpMatch) GoString() string {
+	return fmt.Sprintf("ovs.ArpOp(%01d)", m.op)
 }
 
 // A connectionTrackingMarkMatch is a Match returned by ConnectionTrackingMark.

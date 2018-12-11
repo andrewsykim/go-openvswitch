@@ -918,6 +918,50 @@ func TestMatchIPv6Label(t *testing.T) {
 	}
 }
 
+func TestMatchARPOP(t *testing.T) {
+	var tests = []struct {
+		desc    string
+		m       Match
+		out     string
+		invalid bool
+	}{
+		{
+			desc: "Arp op 1",
+			m:    ArpOp(1),
+			out:  "arp_op=1",
+		},
+		{
+			desc: "Arp op 2",
+			m:    ArpOp(2),
+			out:  "arp_op=2",
+		},
+		{
+			desc:    "Arp op 0",
+			m:       ArpOp(0),
+			invalid: true,
+		},
+		{
+			desc:    "Arp op 5",
+			m:       ArpOp(5),
+			invalid: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.desc, func(t *testing.T) {
+			out, err := tt.m.MarshalText()
+			if (err != nil) != tt.invalid {
+				t.Fatalf("unexpected error: %v", err)
+			}
+
+			if want, got := tt.out, string(out); want != got {
+				t.Fatalf("unexpected Match output:\n- want: %q\n-  got: %q",
+					want, got)
+			}
+		})
+	}
+}
+
 func TestMatchConnectionTrackingMark(t *testing.T) {
 	var tests = []struct {
 		desc string

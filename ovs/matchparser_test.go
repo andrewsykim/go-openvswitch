@@ -294,6 +294,19 @@ func Test_parseMatch(t *testing.T) {
 			invalid: true,
 		},
 		{
+			s:       "arp_op=",
+			invalid: true,
+		},
+		{
+			s:       "arp_op=foo",
+			invalid: true,
+		},
+		{
+			s:     "arp_op=2",
+			final: "arp_op=2",
+			m:     ArpOp(2),
+		},
+		{
 			s:       "ct_mark=",
 			invalid: true,
 		},

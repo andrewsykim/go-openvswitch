@@ -29,6 +29,8 @@ func parseMatch(key string, value string) (Match, error) {
 	switch key {
 	case arpSHA, arpTHA, ndSLL, ndTLL:
 		return parseMACMatch(key, value)
+	case arpOp:
+		return parseArpOp(value)
 	case icmpType, nwProto:
 		return parseIntMatch(key, value, math.MaxUint8)
 	case ctZone:
@@ -391,6 +393,23 @@ func parseIPv6Label(value string) (Match, error) {
 	default:
 		return nil, fmt.Errorf("invalid ipv6_label match: %q", value)
 	}
+}
+
+// parseArpOp parses a ArpOp Match from value.
+func parseArpOp(value string) (Match, error) {
+	if !strings.HasPrefix(value, hexPrefix) {
+		parsed, err := strconv.ParseUint(value, 10, 16)
+		if err != nil {
+			return nil, err
+		}
+		return ArpOp(uint16(parsed)), nil
+	}
+
+	v, err := parseHexUint16(value)
+	if err != nil {
+		return nil, err
+	}
+	return ArpOp(v), nil
 }
 
 // parseCTMark parses a CTMark Match from value.
