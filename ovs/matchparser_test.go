@@ -260,6 +260,40 @@ func Test_parseMatch(t *testing.T) {
 			invalid: true,
 		},
 		{
+			s:       "ipv6_label=",
+			invalid: true,
+		},
+		{
+			s:       "ipv6_label=foo",
+			invalid: true,
+		},
+		{
+			s:     "ipv6_label=10",
+			final: "ipv6_label=0x0000a",
+			m:     IPv6Label(10, 0),
+		},
+		{
+			s: "ipv6_label=0x0000a",
+			m: IPv6Label(10, 0),
+		},
+		{
+			s:       "ipv6_label=10/foo",
+			invalid: true,
+		},
+		{
+			s:     "ipv6_label=10/10",
+			final: "ipv6_label=0x0000a/0x0000a",
+			m:     IPv6Label(10, 10),
+		},
+		{
+			s: "ipv6_label=0x01000/0x01000",
+			m: IPv6Label(0x1000, 0x1000),
+		},
+		{
+			s:       "ipv6_label=10/10/10",
+			invalid: true,
+		},
+		{
 			s:       "ct_mark=",
 			invalid: true,
 		},

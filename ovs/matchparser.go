@@ -74,6 +74,8 @@ func parseMatch(key string, value string) (Match, error) {
 		return IPv6Source(value), nil
 	case ipv6DST:
 		return IPv6Destination(value), nil
+	case ipv6Label:
+		return parseIPv6Label(value)
 	case nwSRC:
 		return NetworkSource(value), nil
 	case nwDST:
@@ -355,6 +357,39 @@ func parseVLANTCI1(value string) (Match, error) {
 	// Match had too many parts, e.g. "vlan_tci1=10/10/10"
 	default:
 		return nil, fmt.Errorf("invalid vlan_tci1 match: %q", value)
+	}
+}
+
+// parseIPv6Label parses a IPv6Label Match from value.
+func parseIPv6Label(value string) (Match, error) {
+	var values []uint32
+	for _, s := range strings.Split(value, "/") {
+		if !strings.HasPrefix(s, hexPrefix) {
+			v, err := strconv.Atoi(s)
+			if err != nil {
+				return nil, err
+			}
+
+			values = append(values, uint32(v))
+			continue
+		}
+
+		v, err := parseHexUint32(s)
+		if err != nil {
+			return nil, err
+		}
+
+		values = append(values, v)
+	}
+
+	switch len(values) {
+	case 1:
+		return IPv6Label(values[0], 0), nil
+	case 2:
+		return IPv6Label(values[0], values[1]), nil
+	// Match had too many parts, e.g. "ipv6_label=10/10/10"
+	default:
+		return nil, fmt.Errorf("invalid ipv6_label match: %q", value)
 	}
 }
 

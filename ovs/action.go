@@ -26,6 +26,10 @@ var (
 	// errCTNoArguments is returned when no arguments are passed to ActionCT.
 	errCTNoArguments = errors.New("no arguments for connection tracking")
 
+	// errInvalidIPv6Label is returned when an input IPv6 label is out of
+	// range. It should only use the first 20 bits of the 32 bit field.
+	errInvalidIPv6Label = errors.New("IPv6 label must only use 20 bits")
+
 	// errInvalidVLANVID is returned when an input VLAN VID is out of range
 	// for a valid VLAN VID.
 	errInvalidVLANVID = errors.New("VLAN VID must be between 0 and 4095")
@@ -561,13 +565,19 @@ func (a *setTunnelAction) MarshalText() ([]byte, error) {
 	return bprintf("set_tunnel:%#x", a.tunnelID), nil
 }
 
+// validIPv6Label indicates if an IPv6 label is out of range. It should only
+// use the first 20 bits of the 32 bit field.
+func validIPv6Label(label uint32) bool {
+	return (label & 0xfff00000) == 0x00000000
+}
+
 // validVLANVID indicates if a VLAN VID falls within the valid range
 // for a VLAN VID.
 func validVLANVID(vid int) bool {
 	return vid >= 0x000 && vid <= 0xfff
 }
 
-// validVLANVID indicates if a VLAN VID falls within the valid range
+// validVLANVPCP indicates if a VLAN VID falls within the valid range
 // for a VLAN VID.
 func validVLANPCP(pcp int) bool {
 	return pcp >= 0 && pcp <= 7

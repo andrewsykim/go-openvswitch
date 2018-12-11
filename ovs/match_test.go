@@ -874,6 +874,50 @@ func TestMatchVLANTCI1(t *testing.T) {
 	}
 }
 
+func TestMatchIPv6Label(t *testing.T) {
+	var tests = []struct {
+		desc    string
+		m       Match
+		out     string
+		invalid bool
+	}{
+		{
+			desc: "Label 10, no mask",
+			m:    IPv6Label(10, 0),
+			out:  "ipv6_label=0x0000a",
+		},
+		{
+			desc: "Label 0x1000, mask 0xfffff",
+			m:    IPv6Label(0x1000, 0xfffff),
+			out:  "ipv6_label=0x01000/0xfffff",
+		},
+		{
+			desc:    "Label uses more than the lower 20 bits",
+			m:       IPv6Label(0x100000, 0x000fffff),
+			invalid: true,
+		},
+		{
+			desc:    "Mask uses more than the lower 20 bits",
+			m:       IPv6Label(0x010000, 0x00ffffff),
+			invalid: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.desc, func(t *testing.T) {
+			out, err := tt.m.MarshalText()
+			if (err != nil) != tt.invalid {
+				t.Fatalf("unexpected error: %v", err)
+			}
+
+			if want, got := tt.out, string(out); want != got {
+				t.Fatalf("unexpected Match output:\n- want: %q\n-  got: %q",
+					want, got)
+			}
+		})
+	}
+}
+
 func TestMatchConnectionTrackingMark(t *testing.T) {
 	var tests = []struct {
 		desc string

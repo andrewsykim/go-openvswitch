@@ -51,6 +51,7 @@ const (
 	icmpType  = "icmp_type"
 	ipv6DST   = "ipv6_dst"
 	ipv6SRC   = "ipv6_src"
+	ipv6Label = "ipv6_label"
 	ndSLL     = "nd_sll"
 	ndTLL     = "nd_tll"
 	ndTarget  = "nd_target"
@@ -835,6 +836,38 @@ func (m *vlanTCI1Match) MarshalText() ([]byte, error) {
 // GoString implements Match.
 func (m *vlanTCI1Match) GoString() string {
 	return fmt.Sprintf("ovs.VLANTCI1(0x%04x, 0x%04x)", m.tci, m.mask)
+}
+
+// An ipv6LabelMatch is a Match returned by IPv6Label.
+type ipv6LabelMatch struct {
+	label  uint32
+	mask uint32
+}
+
+// IPv6Label matches packets based on their IPv6 label information, using
+// the specified label and optional mask value.
+func IPv6Label(label, mask uint32) Match {
+	return &ipv6LabelMatch{
+		label:  label,
+		mask: mask,
+	}
+}
+
+// MarshalText implements Match.
+func (m *ipv6LabelMatch) MarshalText() ([]byte, error) {
+	if !validIPv6Label(m.label) || !validIPv6Label(m.mask) {
+		return nil, errInvalidIPv6Label
+	}
+	if m.mask != 0 {
+		return bprintf("%s=0x%05x/0x%05x", ipv6Label, m.label, m.mask), nil
+	}
+
+	return bprintf("%s=0x%05x", ipv6Label, m.label), nil
+}
+
+// GoString implements Match.
+func (m *ipv6LabelMatch) GoString() string {
+	return fmt.Sprintf("ovs.IPv6Label(0x%04x, 0x%04x)", m.label, m.mask)
 }
 
 // A connectionTrackingMarkMatch is a Match returned by ConnectionTrackingMark.
