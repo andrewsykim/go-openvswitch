@@ -226,6 +226,40 @@ func Test_parseMatch(t *testing.T) {
 			invalid: true,
 		},
 		{
+			s:       "vlan_tci1=",
+			invalid: true,
+		},
+		{
+			s:       "vlan_tci1=foo",
+			invalid: true,
+		},
+		{
+			s:     "vlan_tci1=10",
+			final: "vlan_tci1=0x000a",
+			m:     VLANTCI1(10, 0),
+		},
+		{
+			s: "vlan_tci1=0x000a",
+			m: VLANTCI1(10, 0),
+		},
+		{
+			s:       "vlan_tci1=10/foo",
+			invalid: true,
+		},
+		{
+			s:     "vlan_tci1=10/10",
+			final: "vlan_tci1=0x000a/0x000a",
+			m:     VLANTCI1(10, 10),
+		},
+		{
+			s: "vlan_tci1=0x1000/0x1000",
+			m: VLANTCI1(0x1000, 0x1000),
+		},
+		{
+			s:       "vlan_tci1=10/10/10",
+			invalid: true,
+		},
+		{
 			s:       "ct_mark=",
 			invalid: true,
 		},

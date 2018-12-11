@@ -65,6 +65,7 @@ const (
 	tpSRC     = "tp_src"
 	tunID     = "tun_id"
 	vlanTCI   = "vlan_tci"
+	vlanTCI1  = "vlan_tci1"
 )
 
 // A Match is a type which can be marshaled into an OpenFlow packet matching
@@ -805,6 +806,35 @@ func (m *vlanTCIMatch) MarshalText() ([]byte, error) {
 // GoString implements Match.
 func (m *vlanTCIMatch) GoString() string {
 	return fmt.Sprintf("ovs.VLANTCI(0x%04x, 0x%04x)", m.tci, m.mask)
+}
+
+// A vlanTCI1Match is a Match returned by VLANTCI1.
+type vlanTCI1Match struct {
+	tci  uint16
+	mask uint16
+}
+
+// VLANTCI1 matches packets based on their VLAN tag control information, using
+// the specified TCI and optional mask value.
+func VLANTCI1(tci, mask uint16) Match {
+	return &vlanTCI1Match{
+		tci:  tci,
+		mask: mask,
+	}
+}
+
+// MarshalText implements Match.
+func (m *vlanTCI1Match) MarshalText() ([]byte, error) {
+	if m.mask != 0 {
+		return bprintf("%s=0x%04x/0x%04x", vlanTCI1, m.tci, m.mask), nil
+	}
+
+	return bprintf("%s=0x%04x", vlanTCI1, m.tci), nil
+}
+
+// GoString implements Match.
+func (m *vlanTCI1Match) GoString() string {
+	return fmt.Sprintf("ovs.VLANTCI1(0x%04x, 0x%04x)", m.tci, m.mask)
 }
 
 // A connectionTrackingMarkMatch is a Match returned by ConnectionTrackingMark.

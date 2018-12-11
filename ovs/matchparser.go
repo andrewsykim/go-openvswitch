@@ -78,6 +78,8 @@ func parseMatch(key string, value string) (Match, error) {
 		return NetworkSource(value), nil
 	case nwDST:
 		return NetworkDestination(value), nil
+	case vlanTCI1:
+		return parseVLANTCI1(value)
 	case vlanTCI:
 		return parseVLANTCI(value)
 	case ctMark:
@@ -320,6 +322,39 @@ func parseVLANTCI(value string) (Match, error) {
 	// Match had too many parts, e.g. "vlan_tci=10/10/10"
 	default:
 		return nil, fmt.Errorf("invalid vlan_tci match: %q", value)
+	}
+}
+
+// parseVLANTCI1 parses a VLANTCI1 Match from value.
+func parseVLANTCI1(value string) (Match, error) {
+	var values []uint16
+	for _, s := range strings.Split(value, "/") {
+		if !strings.HasPrefix(s, hexPrefix) {
+			v, err := strconv.Atoi(s)
+			if err != nil {
+				return nil, err
+			}
+
+			values = append(values, uint16(v))
+			continue
+		}
+
+		v, err := parseHexUint16(s)
+		if err != nil {
+			return nil, err
+		}
+
+		values = append(values, v)
+	}
+
+	switch len(values) {
+	case 1:
+		return VLANTCI1(values[0], 0), nil
+	case 2:
+		return VLANTCI1(values[0], values[1]), nil
+	// Match had too many parts, e.g. "vlan_tci1=10/10/10"
+	default:
+		return nil, fmt.Errorf("invalid vlan_tci1 match: %q", value)
 	}
 }
 

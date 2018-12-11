@@ -841,6 +841,39 @@ func TestMatchVLANTCI(t *testing.T) {
 	}
 }
 
+func TestMatchVLANTCI1(t *testing.T) {
+	var tests = []struct {
+		desc string
+		m    Match
+		out  string
+	}{
+		{
+			desc: "TCI1 10, no mask",
+			m:    VLANTCI1(0, 0),
+			out:  "vlan_tci1=0x0000",
+		},
+		{
+			desc: "TCI1 0x1000, mask 0x1000 (any VLAN)",
+			m:    VLANTCI1(0x1000, 0x1000),
+			out:  "vlan_tci1=0x1000/0x1000",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.desc, func(t *testing.T) {
+			out, err := tt.m.MarshalText()
+			if err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
+
+			if want, got := tt.out, string(out); want != got {
+				t.Fatalf("unexpected Match output:\n- want: %q\n-  got: %q",
+					want, got)
+			}
+		})
+	}
+}
+
 func TestMatchConnectionTrackingMark(t *testing.T) {
 	var tests = []struct {
 		desc string
@@ -1052,6 +1085,14 @@ func TestMatchGoString(t *testing.T) {
 		{
 			m: VLANTCI(0x1000, 0x1000),
 			s: `ovs.VLANTCI(0x1000, 0x1000)`,
+		},
+		{
+			m: VLANTCI1(10, 0),
+			s: `ovs.VLANTCI1(0x000a, 0x0000)`,
+		},
+		{
+			m: VLANTCI1(0x1000, 0x1000),
+			s: `ovs.VLANTCI1(0x1000, 0x1000)`,
 		},
 		{
 			m: ConnectionTrackingState(
